@@ -29,17 +29,13 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("email:", email);
-  console.log("password:", password);
 
   const user = await User.findOne({ email });
-  console.log("user:", user);
 
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
-  console.log("passwordCompare:", passwordCompare);
 
   if (!passwordCompare) {
     throw HttpError(401, "Email or password is wrong");
@@ -48,9 +44,16 @@ const login = async (req, res) => {
   const payload = { id: user._id };
 
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
-  console.log("token:", token);
+
   await User.findByIdAndUpdate(user._id, { token });
-  res.json({ token });
+
+  res.status(200).json({
+    token,
+    user: {
+      email,
+      subscription: user.subscription,
+    },
+  });
 };
 
 const getCurrent = async (req, res) => {
@@ -64,9 +67,18 @@ const getCurrent = async (req, res) => {
 const logout = async (req, res) => {
   const { _id } = req.user;
   console.log("_id:", _id);
+  console.log("Доходимо сюди");
   await User.findByIdAndUpdate(_id, { token: "" });
-  res.status(204);
-  // res.json({ message: "logout sucsess" });
+  // res.status(201);
+  res.status(204).send();
+};
+
+const updateUserSubscription = async (req, res) => {
+  const { subscription } = req.body;
+  const { _id } = req.user;
+  console.log("_id:", _id);
+  await User.findByIdAndUpdate(_id, { subscription: subscription });
+  res.status(204).send();
 };
 
 module.exports = {
@@ -74,4 +86,5 @@ module.exports = {
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+  updateUserSubscription: ctrlWrapper(updateUserSubscription),
 };
