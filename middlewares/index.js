@@ -2,5 +2,12 @@ const isValidFavoriteBody = require("./isValidFavoriteBody");
 const isValidId = require("./isValidId");
 const validateBody = require("./validateBody");
 const authenticate = require("./authenticate");
+const upload = require("./upload");
 
-module.exports = { validateBody, isValidId, isValidFavoriteBody, authenticate };
+module.exports = {
+  validateBody,
+  isValidId,
+  isValidFavoriteBody,
+  authenticate,
+  upload,
+};
